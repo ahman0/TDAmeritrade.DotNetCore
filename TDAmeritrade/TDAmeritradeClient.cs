@@ -58,7 +58,7 @@ namespace TDAmeritrade
         /// https://www.reddit.com/r/algotrading/comments/c81vzq/td_ameritrade_api_access_2019_guide/
         /// https://www.reddit.com/r/algotrading/comments/914q22/successful_access_to_td_ameritrade_api/
         /// </summary>
-        public string GetSignInUrl(string consumerKey, string redirectUrl = "http://localhost")
+        public string GetSignInUrl(string consumerKey, string redirectUrl = "http://localhost/")
         {
             var encodedKey = HttpUtility.UrlEncode(consumerKey);
             var encodedUri = HttpUtility.UrlEncode(redirectUrl);
@@ -75,7 +75,7 @@ namespace TDAmeritrade
         /// <param name="code">Required if trying to use authorization code grant</param>
         /// <param name="redirectUrl">Required if trying to use authorization code grant</param>
         /// <returns></returns>
-        public async Task SignIn(string consumerKey, string code, string redirectUrl = "http://localhost")
+        public async Task SignIn(string consumerKey, string code, string redirectUrl = "http://localhost/")
         {
             var decoded = HttpUtility.UrlDecode(code);
             var path = "https://api.tdameritrade.com/v1/oauth2/token";
@@ -317,6 +317,9 @@ namespace TDAmeritrade
             if (model.endDate.HasValue)
             {
                 query["endDate"] = model.endDate.Value.ToString();
+            }
+            if (model.startDate.HasValue)
+            { 
                 query["startDate"] = model.startDate.Value.ToString();
             }
             if(model.periodType.HasValue)
@@ -523,7 +526,7 @@ namespace TDAmeritrade
 
             var key = HttpUtility.UrlEncode(AuthResult.consumer_key);
             var dayString = day.ToString("yyyy-MM-dd").Replace("/","-");
-            string path = IsSignedIn
+            string path = !IsSignedIn
                 ? $"https://api.tdameritrade.com/v1/marketdata/{type}/hours?date={dayString}"
                 : $"https://api.tdameritrade.com/v1/marketdata/{type}/hours?apikey={key}&date={dayString}";
 

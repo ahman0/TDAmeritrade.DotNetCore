@@ -15,6 +15,9 @@ namespace TDAmeritrade
             return time / 1000;
         }
 
+        private static DateTime _EpochTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static TimeZoneInfo _EasternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+
         public static double ToUnixTimeSeconds(this DateTime time)
         {
             TimeSpan t = time - new DateTime(1970, 1, 1);
@@ -28,19 +31,30 @@ namespace TDAmeritrade
 
         public static double ToUnixTimeMilliseconds(this DateTime time)
         {
-            TimeSpan t = time - new DateTime(1970, 1, 1);
+            TimeSpan t = time - (new DateTime(1970, 1, 1)).ToEST();
             return t.TotalMilliseconds;
         }
+
+        public static ulong ToTimeStamp(this DateTime time)
+        {
+            TimeSpan t = time.ToUniversalTime() - (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+            return (ulong)t.TotalMilliseconds;
+        }
+
+        public static DateTime FromTimeStamp(ulong timestamp)
+        {
+            return ToEST(_EpochTime.AddMilliseconds(timestamp));
+        }
+
         public static DateTime FromUnixTimeMilliseconds(double time)
         {
-            return new DateTime(1970, 1, 1) + TimeSpan.FromMilliseconds(time);
+            return (new DateTime(1970, 1, 1)).ToEST() + TimeSpan.FromMilliseconds(time);
         }
 
         public static DateTime ToEST(this DateTime time)
         {
             var timeUtc = time.ToUniversalTime();
-            TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
-            return TimeZoneInfo.ConvertTimeFromUtc(timeUtc, easternZone);
+            return TimeZoneInfo.ConvertTimeFromUtc(timeUtc, _EasternZone);
         }
 
         public static DateTime ToRegularTradingStart(this DateTime time)

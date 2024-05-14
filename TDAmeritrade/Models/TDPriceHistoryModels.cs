@@ -7,7 +7,7 @@ namespace TDAmeritrade
     public struct TDPriceCandle 
     {
         public double close { get; set; }
-        public double datetime { get; set; }
+        public ulong datetime { get; set; }
         public double high { get; set; }
         public double low { get; set; }
         public double open { get; set; }
@@ -18,11 +18,11 @@ namespace TDAmeritrade
         {
             get
             {
-                return TDHelpers.FromUnixTimeSeconds(datetime);
+                return TDHelpers.FromTimeStamp(datetime);
             }
             set
             {
-                datetime = TDHelpers.ToUnixTimeSeconds(value);
+                datetime = TDHelpers.ToTimeStamp(value);
             }
         }
     }
