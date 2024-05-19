@@ -64,7 +64,7 @@ namespace TDAmeritrade.Tests
             var array = new TDPriceCandle[9];
             for (int i = 0; i < 9; i++)
             {
-                array[i] = new TDPriceCandle { close = i, high = i, low = i, open = i, volume = i, datetime = i };
+                array[i] = new TDPriceCandle { close = i, high = i, low = i, open = i, volume = i, datetime = (ulong)i };
             }
             var merge1 = TDHelpers.ConsolidateByTotalCount(array, 3);
             Assert.IsTrue(merge1.Length == 3);
@@ -87,7 +87,7 @@ namespace TDAmeritrade.Tests
             var array = new TDPriceCandle[9];
             for (int i = 0; i < 9; i++)
             {
-                array[i] = new TDPriceCandle { close = i, high = i, low = i, open = i, volume = i, datetime = i };
+                array[i] = new TDPriceCandle { close = i, high = i, low = i, open = i, volume = i, datetime = (ulong)i };
             }
             var merge1 = TDHelpers.ConsolidateByPeriodCount(array, 3);
             Assert.IsTrue(merge1.Length == 3);

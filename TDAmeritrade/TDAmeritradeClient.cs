@@ -51,7 +51,7 @@ namespace TDAmeritrade
 
         #region Auth
 
-        protected TDAuthResult AuthResult = new TDAuthResult();
+        protected SchwabAuthResult AuthResult = new SchwabAuthResult();
 
         /// <summary>
         /// Returns sign in url
@@ -98,7 +98,7 @@ namespace TDAmeritrade
                 {
                     case HttpStatusCode.OK:
                         var json = await res.Content.ReadAsStringAsync();
-                        AuthResult = JsonConvert.DeserializeObject<TDAuthResult>(json);
+                        AuthResult = JsonConvert.DeserializeObject<SchwabAuthResult>(json);
                         AuthResult.security_code = code;
                         AuthResult.consumer_key = consumerKey;
                         AuthResult.redirect_url = redirectUrl;
@@ -119,7 +119,7 @@ namespace TDAmeritrade
         /// <returns></returns>
         public async Task SignIn()
         {
-            AuthResult = JsonConvert.DeserializeObject<TDAuthResult>(_cache.Load("TDAmeritradeKey"));
+            AuthResult = JsonConvert.DeserializeObject<SchwabAuthResult>(_cache.Load("TDAmeritradeKey"));
 
             var decoded = HttpUtility.UrlDecode(AuthResult.security_code);
 
@@ -145,7 +145,7 @@ namespace TDAmeritrade
                 {
                     case HttpStatusCode.OK:
                         var json = await res.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<TDAuthResult>(json);
+                        var result = JsonConvert.DeserializeObject<SchwabAuthResult>(json);
                         AuthResult.access_token = result.access_token;
                         _cache.Save("TDAmeritradeKey", JsonConvert.SerializeObject(AuthResult));
                         IsSignedIn = true;
@@ -163,7 +163,7 @@ namespace TDAmeritrade
         /// </summary>
         public void SignOut(bool keeyConsumerKey = false, bool deleteCache = true)
         {
-            AuthResult = new TDAuthResult
+            AuthResult = new SchwabAuthResult
             {
                 consumer_key = keeyConsumerKey? AuthResult.consumer_key : null
             };
@@ -317,9 +317,6 @@ namespace TDAmeritrade
             if (model.endDate.HasValue)
             {
                 query["endDate"] = model.endDate.Value.ToString();
-            }
-            if (model.startDate.HasValue)
-            { 
                 query["startDate"] = model.startDate.Value.ToString();
             }
             if(model.periodType.HasValue)

@@ -19,14 +19,14 @@ namespace TDConsole
         }
 
         TDUnprotectedCache cache;
-        TDAmeritradeClient client;
+        SchwabClient client;
         FileStream stream;
         bool terminated;
 
         public Program()
         {
             cache = new TDUnprotectedCache();
-            client = new TDAmeritradeClient(cache);
+            client = new SchwabClient(cache);
         }
 
         public void Dispose()
@@ -72,12 +72,15 @@ namespace TDConsole
         {
             Console.WriteLine("Paste consumer key : (https://developer.tdameritrade.com/user/me/apps)");
             var consumerKey = Console.ReadLine();
+            Console.WriteLine("Paste consumer secret.");
+            var secret = Console.ReadLine();
             Console.WriteLine("Opening Browser. Please sign in.");
-            var uri = client.GetSignInUrl(consumerKey);
+            var uri = client.GetSignInUrl(consumerKey, "https://127.0.0.1");
             OpenBrowser(uri);
             Console.WriteLine("When complete,please input the code (code={code}) query paramater. Located inside your browser url bar.");
             var code = Console.ReadLine();
-            await client.SignIn(consumerKey, code);
+
+            await client.SignIn(consumerKey, code, secret, "https://127.0.0.1");
             Console.WriteLine($"IsSignedIn : {client.IsSignedIn}");
         }
 
@@ -116,77 +119,77 @@ namespace TDConsole
 
             if (!File.Exists(txt_path)) { using (var s = File.Create(txt_path)) { } }
 
-            using (var socket = new TDAmeritradeStreamClient(client))
-            {
-                async void Retry()
-                {
-                    if (!terminated)
-                    {
-                        Console.WriteLine("Retrying...");
-                        await Task.Delay(5000);
-                        Connect();
-                    }
-                }
+            //using (var socket = new TDAmeritradeStreamClient(client))
+            //{
+            //    async void Retry()
+            //    {
+            //        if (!terminated)
+            //        {
+            //            Console.WriteLine("Retrying...");
+            //            await Task.Delay(5000);
+            //            Connect();
+            //        }
+            //    }
 
-                async void Connect()
-                {
-                    Console.WriteLine("Connecting...");
-                    try
-                    {
-                        await socket.Connect();
+            //    async void Connect()
+            //    {
+            //        Console.WriteLine("Connecting...");
+            //        try
+            //        {
+            //            await socket.Connect();
 
-                        if (socket.IsConnected)
-                        {
-                            await socket.RequestQOS((TDQOSLevels)qosInt);
-                            await Task.Delay(1000);
-                            await socket.SubscribeQuote(symbols);
-                            await socket.SubscribeChart(symbols, IsFutureSymbol(symbols) ? TDChartSubs.CHART_FUTURES : TDChartSubs.CHART_EQUITY);
-                            await socket.SubscribeTimeSale(symbols, IsFutureSymbol(symbols) ? TDTimeSaleServices.TIMESALE_FUTURES : TDTimeSaleServices.TIMESALE_EQUITY);
-                            await socket.SubscribeBook(symbols, TDBookOptions.LISTED_BOOK);
-                            await socket.SubscribeBook(symbols, TDBookOptions.NASDAQ_BOOK);
-                            await socket.SubscribeBook(symbols, TDBookOptions.FUTURES_BOOK);
-                        }
-                        else if (!terminated)
-                        {
-                            Retry();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Error " + ex);
-                        Retry();
-                    }
-                }
+            //            if (socket.IsConnected)
+            //            {
+            //                await socket.RequestQOS((TDQOSLevels)qosInt);
+            //                await Task.Delay(1000);
+            //                await socket.SubscribeQuote(symbols);
+            //                await socket.SubscribeChart(symbols, IsFutureSymbol(symbols) ? TDChartSubs.CHART_FUTURES : TDChartSubs.CHART_EQUITY);
+            //                await socket.SubscribeTimeSale(symbols, IsFutureSymbol(symbols) ? TDTimeSaleServices.TIMESALE_FUTURES : TDTimeSaleServices.TIMESALE_EQUITY);
+            //                await socket.SubscribeBook(symbols, TDBookOptions.LISTED_BOOK);
+            //                await socket.SubscribeBook(symbols, TDBookOptions.NASDAQ_BOOK);
+            //                await socket.SubscribeBook(symbols, TDBookOptions.FUTURES_BOOK);
+            //            }
+            //            else if (!terminated)
+            //            {
+            //                Retry();
+            //            }
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            Console.WriteLine("Error " + ex);
+            //            Retry();
+            //        }
+            //    }
 
-                socket.OnJsonSignal += (m) =>
-                {
-                    if (format == '0' || format == '1')
-                    {
-                        lock (txt_path)
-                        {
-                            Console.WriteLine(m);
-                            using (var s = File.AppendText(txt_path))
-                            {
-                                s.WriteLine(m);
-                            }
-                        }
-                    }
-                };
+            //    socket.OnJsonSignal += (m) =>
+            //    {
+            //        if (format == '0' || format == '1')
+            //        {
+            //            lock (txt_path)
+            //            {
+            //                Console.WriteLine(m);
+            //                using (var s = File.AppendText(txt_path))
+            //                {
+            //                    s.WriteLine(m);
+            //                }
+            //            }
+            //        }
+            //    };
 
-                socket.OnConnect += (s) =>
-                {
-                    if (!s)
-                    {
-                        Connect();
-                    }
-                };
+            //    socket.OnConnect += (s) =>
+            //    {
+            //        if (!s)
+            //        {
+            //            Connect();
+            //        }
+            //    };
 
-                Connect();
-                Console.WriteLine("Type any key to quit");
-                Console.ReadLine();
-                terminated = true;
-                await socket.Disconnect();
-            }
+            //    Connect();
+            //    Console.WriteLine("Type any key to quit");
+            //    Console.ReadLine();
+            //    terminated = true;
+            //    await socket.Disconnect();
+            //}
         }
 
 

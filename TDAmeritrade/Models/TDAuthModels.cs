@@ -3,10 +3,11 @@
 namespace TDAmeritrade
 {
     [Serializable]
-    public class TDAuthResult
+    public class SchwabAuthResult
     {
         public string redirect_url { get; set; }
         public string consumer_key { get; set; }
+        public string consumer_secret { get; set; }
         public string security_code { get; set; }
         public string access_token { get; set; }
         public string refresh_token { get; set; }
