@@ -309,12 +309,14 @@ namespace TDAmeritrade
 
             var key = HttpUtility.UrlEncode(AuthResult.consumer_key);
 
-            var builder = new UriBuilder($"https://api.tdameritrade.com/v1/marketdata/{model.symbol}/pricehistory");
+            var builder = new UriBuilder($"https://api.schwabapi.com/marketdata/v1/pricehistory");
             var query = HttpUtility.ParseQueryString(builder.Query);
             if (!IsSignedIn)
             {
                 query["apikey"] = key;
             }
+            query["symbol"] = model.symbol;
+
             if (model.frequencyType.HasValue)
             {
                 query["frequencyType"] = model.frequencyType.ToString();
