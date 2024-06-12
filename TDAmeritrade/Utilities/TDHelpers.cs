@@ -5,14 +5,14 @@ namespace TDAmeritrade
 {
     public static class TDHelpers
     {
-        public static long UnixSecondsToMiliseconds(this double time)
+        public static long UnixSecondsToMilliseconds(this double time)
         {
-            return (long)time * 1000;
+            return (long)(time * 1000);
         }
 
-        public static double UnixMilisecondsToSeconds(long time)
+        public static double UnixMillisecondsToSeconds(long time)
         {
-            return time / 1000;
+            return time / 1000.0;
         }
 
         private static DateTime _EpochTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -57,6 +57,11 @@ namespace TDAmeritrade
             return TimeZoneInfo.ConvertTimeFromUtc(timeUtc, _EasternZone);
         }
 
+        public static DateTime ToUtcDate(this DateTime time)
+        {
+            return new DateTime(time.Year, time.Month, time.Day, 0, 0, 0, DateTimeKind.Utc);
+        }
+
         public static DateTime ToRegularTradingStart(this DateTime time)
         {
             return ToEST(time).Date.AddHours(9).AddMinutes(30);
@@ -68,6 +73,11 @@ namespace TDAmeritrade
             return est.Date.AddHours(12 + 4);
         }
 
+        public static DateTime ToStartOfDay(this DateTime time)
+        {
+            var est = time.ToUtcDate().AddHours(5);
+            return est;
+        }
         public static DateTime ToPreMarketStart(this DateTime time)
         {
             return ToEST(time).Date.AddHours(7);
@@ -122,7 +132,7 @@ namespace TDAmeritrade
         /// Merges N candles X candles divisibable by periodsPerNewCandle candles.
         /// </summary>
         /// <param name="candles"></param>
-        /// <param name="periodsToMerge">if periodsPerNewCandle == 3, turn 30 1 minute canldes into 10 (3) minute candles.</param>
+        /// <param name="periodsPerNewCandle">if periodsPerNewCandle == 3, turn 30 1 minute canldes into 10 (3) minute candles.</param>
         /// <returns></returns>
         public static TDPriceCandle[] ConsolidateByPeriodCount(this TDPriceCandle[] candles, int periodsPerNewCandle)
         {
